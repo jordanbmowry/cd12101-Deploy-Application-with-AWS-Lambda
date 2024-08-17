@@ -62,7 +62,7 @@ provider:
 
 functions:
   Auth:
-    handler: src/lambda/auth/auth0Authorizer.handler # Update paths to TypeScript source files
+    handler: src/lambda/auth/auth0Authorizer.handler
     events:
       - http:
           method: post
@@ -74,7 +74,7 @@ functions:
           cors: true
   # TODO: Configure this function
   GetTodos:
-    handler: src/lambda/http/getTodos.handler # Update paths to TypeScript source files
+    handler: src/lambda/http/getTodos.handler
     events:
       - http:
           method: get
@@ -94,7 +94,7 @@ functions:
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_CREATED_AT_INDEX}
   # TODO: Configure this function
   CreateTodo:
-    handler: src/lambda/http/createTodo.handler # Update paths to TypeScript source files
+    handler: src/lambda/http/createTodo.handler
     events:
       - http:
           method: post
@@ -110,7 +110,7 @@ functions:
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
   # TODO: Configure this function
   UpdateTodo:
-    handler: src/lambda/http/updateTodo.handler # Update paths to TypeScript source files
+    handler: src/lambda/http/updateTodo.handler
     events:
       - http:
           method: patch
@@ -126,7 +126,7 @@ functions:
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
   # TODO: Configure this function
   DeleteTodo:
-    handler: src/lambda/http/deleteTodo.handler # Update paths to TypeScript source files
+    handler: src/lambda/http/deleteTodo.handler
     events:
       - http:
           method: delete
@@ -142,7 +142,7 @@ functions:
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
   # TODO: Configure this function
   GenerateUploadUrl:
-    handler: src/lambda/http/generateUploadUrl.handler # Update paths to TypeScript source files
+    handler: src/lambda/http/generateUploadUrl.handler
     events:
       - http:
           method: post
