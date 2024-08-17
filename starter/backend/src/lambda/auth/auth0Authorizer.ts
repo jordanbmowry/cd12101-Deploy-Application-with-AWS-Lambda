@@ -1,17 +1,27 @@
 import Axios from 'axios'
-import jsonwebtoken from 'jsonwebtoken'
-import { createLogger } from '../../utils/logger.mjs'
+import jsonwebtoken, { JwtPayload } from 'jsonwebtoken'
+import { createLogger } from '../../utils/logger'
+import {
+  APIGatewayTokenAuthorizerEvent,
+  APIGatewayAuthorizerResult
+} from 'aws-lambda'
 
 const logger = createLogger('auth')
 
 const jwksUrl = 'https://test-endpoint.auth0.com/.well-known/jwks.json'
 
-export async function handler(event) {
+export async function handler(
+  event: APIGatewayTokenAuthorizerEvent
+): Promise<APIGatewayAuthorizerResult> {
   try {
     const jwtToken = await verifyToken(event.authorizationToken)
 
+    if (!jwtToken) {
+      throw new Error('Token verification failed')
+    }
+
     return {
-      principalId: jwtToken.sub,
+      principalId: jwtToken.sub as string,
       policyDocument: {
         Version: '2012-10-17',
         Statement: [
@@ -23,7 +33,7 @@ export async function handler(event) {
         ]
       }
     }
-  } catch (e) {
+  } catch (e: any) {
     logger.error('User not authorized', { error: e.message })
 
     return {
@@ -42,15 +52,23 @@ export async function handler(event) {
   }
 }
 
-async function verifyToken(authHeader) {
+async function verifyToken(
+  authHeader: string
+): Promise<JwtPayload | undefined> {
   const token = getToken(authHeader)
-  const jwt = jsonwebtoken.decode(token, { complete: true })
+  const jwt = jsonwebtoken.decode(token, {
+    complete: true
+  }) as JwtPayload | null
 
-  // TODO: Implement token verification
-  return undefined;
+  if (!jwt) {
+    throw new Error('Failed to decode token')
+  }
+
+  // TODO: Implement token verification using jwksUrl
+  return jwt
 }
 
-function getToken(authHeader) {
+function getToken(authHeader: string): string {
   if (!authHeader) throw new Error('No authentication header')
 
   if (!authHeader.toLowerCase().startsWith('bearer '))
