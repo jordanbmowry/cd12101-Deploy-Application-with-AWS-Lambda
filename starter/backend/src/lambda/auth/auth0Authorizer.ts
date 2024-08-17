@@ -17,7 +17,7 @@ export async function handler(
 ): Promise<APIGatewayAuthorizerResult> {
   try {
     const jwtToken = await verifyToken(event.authorizationToken)
-
+    logger.info('auth0Authorizer handler')
     return createPolicy(jwtToken?.sub ?? 'user', true)
   } catch (e: any) {
     logger.error('User not authorized', { error: e.message })
@@ -28,19 +28,22 @@ export async function handler(
 const createPolicy = (
   principalId: string,
   allow: boolean
-): APIGatewayAuthorizerResult => ({
-  principalId,
-  policyDocument: {
-    Version: '2012-10-17',
-    Statement: [
-      {
-        Action: 'execute-api:Invoke',
-        Effect: allow ? 'Allow' : 'Deny',
-        Resource: '*'
-      }
-    ]
+): APIGatewayAuthorizerResult => {
+  logger.info('createPolicy')
+  return {
+    principalId,
+    policyDocument: {
+      Version: '2012-10-17',
+      Statement: [
+        {
+          Action: 'execute-api:Invoke',
+          Effect: allow ? 'Allow' : 'Deny',
+          Resource: '*'
+        }
+      ]
+    }
   }
-})
+}
 
 async function verifyToken(
   authHeader: string
@@ -50,12 +53,13 @@ async function verifyToken(
   const kid = decodedJwt.header.kid
 
   if (!kid) {
+    logger.error('Token header does not contain a kid')
     throw new Error('Token header does not contain a kid')
   }
 
   const signingKey = await getSigningKey(kid)
   const pem = jwkToPem(signingKey)
-
+  logger.info('verifyToken')
   return jsonwebtoken.verify(token, pem) as JwtPayload
 }
 
@@ -64,9 +68,10 @@ const getToken = (authHeader: string): string => {
     throw new Error('No authentication header')
   }
   if (!authHeader.toLowerCase().startsWith('bearer ')) {
+    logger.error('Invalid authentication header')
     throw new Error('Invalid authentication header')
   }
-
+  logger.info('getToken')
   return authHeader.split(' ')[1]
 }
 
@@ -74,7 +79,11 @@ const decodeJwt = (token: string): JwtPayload & { header: JwtHeader } => {
   const decodedJwt = jsonwebtoken.decode(token, {
     complete: true
   }) as JwtPayload & { header: JwtHeader }
-  if (!decodedJwt) throw new Error('Failed to decode token')
+  if (!decodedJwt) {
+    logger.error('Failed to decode token')
+    throw new Error('Failed to decode token')
+  }
+  logger.info('decodeJwt')
   return decodedJwt
 }
 
@@ -88,7 +97,11 @@ const getSigningKey = async (
   }>(jwksUrl)
 
   const signingKey = keys.find((key) => key.kid === kid)
-  if (!signingKey) throw new Error('Invalid signing key')
+  if (!signingKey) {
+    logger.error('Invalid signing key')
+    throw new Error('Invalid signing key')
+  }
 
+  logger.info('getSigningKey')
   return signingKey
 }
