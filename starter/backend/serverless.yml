@@ -33,7 +33,7 @@ provider:
   iam:
     role:
       statements:
-        # TODO: Ensure the following IAM roles are appropriate for the operations performed by the Lambda functions
+        # Ensure the following IAM roles are appropriate for the operations performed by the Lambda functions
         - Effect: Allow
           Action:
             - dynamodb:Scan
@@ -62,8 +62,7 @@ provider:
 
 functions:
   Auth:
-    handler: dist/lambda/auth/auth0Authorizer.handler
-    # TODO: Implement custom authorizer logic in the auth0Authorizer.js file
+    handler: src/lambda/auth/auth0Authorizer.handler # Update paths to TypeScript source files
     events:
       - http:
           method: post
@@ -75,7 +74,7 @@ functions:
           cors: true
 
   GetTodos:
-    handler: dist/lambda/http/getTodos.handler
+    handler: src/lambda/http/getTodos.handler # Update paths to TypeScript source files
     events:
       - http:
           method: get
@@ -84,7 +83,7 @@ functions:
           authorizer: Auth
     iamRoleStatementsInherit: true
     iamRoleStatements:
-      # TODO: Ensure these permissions allow querying the necessary items from DynamoDB
+      # Ensure these permissions allow querying the necessary items from DynamoDB
       - Effect: Allow
         Action:
           - dynamodb:Query
@@ -95,7 +94,7 @@ functions:
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_CREATED_AT_INDEX}
 
   CreateTodo:
-    handler: dist/lambda/http/createTodo.handler
+    handler: src/lambda/http/createTodo.handler # Update paths to TypeScript source files
     events:
       - http:
           method: post
@@ -104,14 +103,14 @@ functions:
           authorizer: Auth
     iamRoleStatementsInherit: true
     iamRoleStatements:
-      # TODO: Ensure these permissions allow creating new items in DynamoDB
+      # Ensure these permissions allow creating new items in DynamoDB
       - Effect: Allow
         Action:
           - dynamodb:PutItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
   UpdateTodo:
-    handler: dist/lambda/http/updateTodo.handler
+    handler: src/lambda/http/updateTodo.handler # Update paths to TypeScript source files
     events:
       - http:
           method: patch
@@ -120,14 +119,14 @@ functions:
           authorizer: Auth
     iamRoleStatementsInherit: true
     iamRoleStatements:
-      # TODO: Ensure these permissions allow updating existing items in DynamoDB
+      # Ensure these permissions allow updating existing items in DynamoDB
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
   DeleteTodo:
-    handler: dist/lambda/http/deleteTodo.handler
+    handler: src/lambda/http/deleteTodo.handler # Update paths to TypeScript source files
     events:
       - http:
           method: delete
@@ -136,14 +135,14 @@ functions:
           authorizer: Auth
     iamRoleStatementsInherit: true
     iamRoleStatements:
-      # TODO: Ensure these permissions allow deleting items from DynamoDB
+      # Ensure these permissions allow deleting items from DynamoDB
       - Effect: Allow
         Action:
           - dynamodb:DeleteItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
   GenerateUploadUrl:
-    handler: dist/lambda/http/generateUploadUrl.handler
+    handler: src/lambda/http/generateUploadUrl.handler # Update paths to TypeScript source files
     events:
       - http:
           method: post
@@ -152,7 +151,7 @@ functions:
           authorizer: Auth
     iamRoleStatementsInherit: true
     iamRoleStatements:
-      # TODO: Ensure these permissions allow generating pre-signed URLs for S3
+      # Ensure these permissions allow generating pre-signed URLs for S3
       - Effect: Allow
         Action:
           - s3:PutObject
@@ -160,7 +159,7 @@ functions:
 
 resources:
   Resources:
-    # TODO: Add any necessary AWS resources, like DynamoDB tables or S3 buckets
+    # Add any necessary AWS resources, like DynamoDB tables or S3 buckets
     TodosTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -223,7 +222,7 @@ resources:
         Bucket: !Ref AttachmentsBucket
 
   Outputs:
-    # TODO: Add any necessary outputs for reference
+    # Add any necessary outputs for reference
     S3BucketName:
       Value: !Ref AttachmentsBucket
       Export:
