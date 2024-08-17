@@ -5,8 +5,7 @@ import winston from 'winston'
  *
  * @param loggerName - a name of a logger that will be added to all messages
  */
-// @ts-ignore
-export function createLogger(loggerName) {
+export function createLogger(loggerName: string) {
   return winston.createLogger({
     level: 'info',
     format: winston.format.json(),
