@@ -32,7 +32,6 @@ provider:
   iam:
     role:
       statements:
-        # Ensure the following IAM roles are appropriate for the operations performed by the Lambda functions
         - Effect: Allow
           Action:
             - dynamodb:Query
@@ -65,11 +64,27 @@ functions:
       - http:
           method: post
           path: auth
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
       - http:
           method: get
           path: auth
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
 
   GetTodos:
     handler: src/lambda/http/getTodos.handler
@@ -77,7 +92,15 @@ functions:
       - http:
           method: get
           path: todos
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
           authorizer: Auth
     iamRoleStatementsInherit: true
     iamRoleStatements:
@@ -96,7 +119,15 @@ functions:
       - http:
           method: post
           path: todos
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
           authorizer: Auth
     iamRoleStatementsInherit: true
     iamRoleStatements:
@@ -111,7 +142,15 @@ functions:
       - http:
           method: patch
           path: todos/{todoId}
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
           authorizer: Auth
     iamRoleStatementsInherit: true
     iamRoleStatements:
@@ -126,7 +165,15 @@ functions:
       - http:
           method: delete
           path: todos/{todoId}
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
           authorizer: Auth
     iamRoleStatementsInherit: true
     iamRoleStatements:
@@ -141,7 +188,15 @@ functions:
       - http:
           method: post
           path: todos/{todoId}/attachment
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
           authorizer: Auth
     iamRoleStatementsInherit: true
     iamRoleStatements:
