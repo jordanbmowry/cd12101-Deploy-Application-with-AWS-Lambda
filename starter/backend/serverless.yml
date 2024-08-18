@@ -35,7 +35,6 @@ provider:
         # Ensure the following IAM roles are appropriate for the operations performed by the Lambda functions
         - Effect: Allow
           Action:
-            - dynamodb:Scan
             - dynamodb:Query
             - dynamodb:PutItem
             - dynamodb:GetItem
