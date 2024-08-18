@@ -3,14 +3,17 @@ import cors from '@middy/http-cors'
 import httpErrorHandler from '@middy/http-error-handler'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { DynamoDB } from '@aws-sdk/client-dynamodb'
-import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb'
+import {
+  DynamoDBDocument,
+  UpdateCommand,
+  UpdateCommandInput
+} from '@aws-sdk/lib-dynamodb'
 import { createLogger } from '../../utils/logger'
 import AWSXRay from 'aws-xray-sdk-core'
-import { UpdateCommand, UpdateCommandInput } from '@aws-sdk/lib-dynamodb'
 
 const logger = createLogger('updateTodo')
 
-const dynamoDbClient = AWSXRay.captureAWSv3Client(new DynamoDB() as any)
+const dynamoDbClient = AWSXRay.captureAWSv3Client(new DynamoDB({}) as any)
 const dynamoDb = DynamoDBDocument.from(dynamoDbClient)
 
 const { TODOS_TABLE = '' } = process.env
@@ -19,7 +22,7 @@ async function updateTodo(
   todoId: string,
   userId: string,
   updatedTodo: { name: string; dueDate: string; done: boolean }
-) {
+): Promise<void> {
   const params: UpdateCommandInput = {
     TableName: TODOS_TABLE,
     Key: { todoId, userId },
@@ -30,7 +33,7 @@ async function updateTodo(
       ':dueDate': updatedTodo.dueDate,
       ':done': updatedTodo.done
     },
-    ReturnValues: 'ALL_NEW'
+    ReturnValues: 'NONE'
   }
 
   await dynamoDb.send(new UpdateCommand(params))
