@@ -129,6 +129,9 @@ functions:
               - X-Amz-Security-Token
               - X-Amz-User-Agent
           authorizer: Auth
+          request:
+            schema:
+              application/json: ${file(src/models/create-todo-model.json)}
     iamRoleStatementsInherit: true
     iamRoleStatements:
       - Effect: Allow
@@ -152,6 +155,9 @@ functions:
               - X-Amz-Security-Token
               - X-Amz-User-Agent
           authorizer: Auth
+          request:
+            schema:
+              application/json: ${file(src/models/update-todo-model.json)}
     iamRoleStatementsInherit: true
     iamRoleStatements:
       - Effect: Allow
