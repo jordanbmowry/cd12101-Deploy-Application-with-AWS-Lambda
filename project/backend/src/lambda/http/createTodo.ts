@@ -4,7 +4,11 @@ import httpErrorHandler from '@middy/http-error-handler'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { getUserId } from '../utils'
 import { DynamoDB } from '@aws-sdk/client-dynamodb'
-import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb'
+import {
+  DynamoDBDocument,
+  PutCommand,
+  PutCommandInput
+} from '@aws-sdk/lib-dynamodb'
 import { v4 as uuidv4 } from 'uuid'
 import { createLogger } from '../../utils/logger'
 import AWSXRay from 'aws-xray-sdk-core'
@@ -40,10 +44,12 @@ async function createTodo(
     done: false
   }
 
-  await dynamoDb.put({
+  const params: PutCommandInput = {
     TableName: TODOS_TABLE,
     Item: todoItem
-  })
+  }
+
+  await dynamoDb.send(new PutCommand(params))
   logger.info('TODO item created in DynamoDB', { userId, todoItem })
   return todoItem
 }
@@ -87,15 +93,24 @@ async function mainHandler(
     }
   }
 
-  const createdTodo = await createTodo(newTodo, userId)
-
-  logger.info('TODO item created successfully', { userId, createdTodo })
-  return {
-    statusCode: 201,
-    body: JSON.stringify({
-      message: 'New TODO created',
-      item: createdTodo
-    })
+  try {
+    const createdTodo = await createTodo(newTodo, userId)
+    logger.info('TODO item created successfully', { userId, createdTodo })
+    return {
+      statusCode: 201,
+      body: JSON.stringify({
+        message: 'New TODO created',
+        item: createdTodo
+      })
+    }
+  } catch (error) {
+    logger.error('Error creating TODO item', { error })
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        message: 'Error creating TODO item'
+      })
+    }
   }
 }
 
