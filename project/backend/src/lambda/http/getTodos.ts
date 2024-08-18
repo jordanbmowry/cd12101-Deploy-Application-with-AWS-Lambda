@@ -4,19 +4,23 @@ import httpErrorHandler from '@middy/http-error-handler'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { getUserId } from '../utils'
 import { DynamoDB } from '@aws-sdk/client-dynamodb'
-import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb'
+import {
+  DynamoDBDocument,
+  QueryCommand,
+  QueryCommandInput
+} from '@aws-sdk/lib-dynamodb'
 import { createLogger } from '../../utils/logger'
 import AWSXRay from 'aws-xray-sdk-core'
 
 const logger = createLogger('getTodos')
 
-const dynamoDbClient = AWSXRay.captureAWSv3Client(new DynamoDB() as any)
+const dynamoDbClient = AWSXRay.captureAWSv3Client(new DynamoDB({}) as any)
 const dynamoDb = DynamoDBDocument.from(dynamoDbClient)
 
 const { TODOS_TABLE = '' } = process.env
 
 async function getTodos(userId: string) {
-  const params = {
+  const params: QueryCommandInput = {
     TableName: TODOS_TABLE,
     KeyConditionExpression: 'userId = :userId',
     ExpressionAttributeValues: {
@@ -24,14 +28,14 @@ async function getTodos(userId: string) {
     }
   }
 
-  const result = await dynamoDb.query(params)
+  const result = await dynamoDb.send(new QueryCommand(params))
 
   logger.info('TODO items retrieved from DynamoDB', {
     userId,
     items: result.Items
   })
 
-  return result.Items
+  return result.Items || []
 }
 
 async function mainHandler(
@@ -50,6 +54,8 @@ async function mainHandler(
   }
 
   const todos = await getTodos(userId)
+
+  logger.info('Returning TODO items', { userId, count: todos.length })
 
   return {
     statusCode: 200,
