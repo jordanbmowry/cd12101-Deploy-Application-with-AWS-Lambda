@@ -1,7 +1,68 @@
+import middy from '@middy/core'
+import cors from '@middy/http-cors'
+import httpErrorHandler from '@middy/http-error-handler'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import { getUserId } from '../utils'
+import { DynamoDB } from '@aws-sdk/client-dynamodb'
+import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb'
+import { createLogger } from '../../utils/logger'
+import AWSXRay from 'aws-xray-sdk-core'
 
-export function handler(event: APIGatewayProxyEvent): APIGatewayProxyResult {
-  // TODO: Get all TODO items for a current user
-  // @ts-ignore
-  return undefined
+const logger = createLogger('getTodos')
+
+const dynamoDbClient = AWSXRay.captureAWSv3Client(new DynamoDB() as any)
+const dynamoDb = DynamoDBDocument.from(dynamoDbClient)
+
+const { TODOS_TABLE = '' } = process.env
+
+async function getTodos(userId: string) {
+  const params = {
+    TableName: TODOS_TABLE,
+    KeyConditionExpression: 'userId = :userId',
+    ExpressionAttributeValues: {
+      ':userId': userId
+    }
+  }
+
+  const result = await dynamoDb.query(params)
+
+  logger.info('TODO items retrieved from DynamoDB', {
+    userId,
+    items: result.Items
+  })
+
+  return result.Items
 }
+
+async function mainHandler(
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> {
+  const userId = getUserId(event)
+
+  if (!userId) {
+    logger.error('Invalid request: No userId found')
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        message: 'Invalid request: No userId found'
+      })
+    }
+  }
+
+  const todos = await getTodos(userId)
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify({
+      items: todos
+    })
+  }
+}
+
+export const handler = middy(mainHandler)
+  .use(httpErrorHandler())
+  .use(
+    cors({
+      credentials: true
+    })
+  )
