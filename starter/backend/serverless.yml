@@ -29,6 +29,7 @@ provider:
     TODOS_CREATED_AT_INDEX: TodosCreatedAtIndex
     IMAGES_S3_BUCKET: serverless-todo-app-images-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
+    AUTH_0_JWKS_URL: https://dev-51f5lkluu0kyub2y.us.auth0.com/.well-known/jwks.json
 
   iam:
     role:

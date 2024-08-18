@@ -16,5 +16,6 @@ export function parseUserId(jwtToken: string): string | null {
     return null
   }
 
+  logger.info('parseUserId')
   return decodedJwt.sub
 }

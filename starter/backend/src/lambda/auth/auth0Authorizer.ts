@@ -10,7 +10,7 @@ import {
 
 const logger = createLogger('auth')
 
-const jwksUrl = `https://dev-51f5lkluu0kyub2y.us.auth0.com/.well-known/jwks.json`
+const { AUTH_0_JWKS_URL = '' } = process.env
 
 export async function handler(
   event: APIGatewayTokenAuthorizerEvent
@@ -94,7 +94,7 @@ const getSigningKey = async (
     data: { keys }
   } = await Axios.get<{
     keys: Array<{ kid: string; n: string; e: string; alg: string }>
-  }>(jwksUrl)
+  }>(AUTH_0_JWKS_URL)
 
   const signingKey = keys.find((key) => key.kid === kid)
   if (!signingKey) {
