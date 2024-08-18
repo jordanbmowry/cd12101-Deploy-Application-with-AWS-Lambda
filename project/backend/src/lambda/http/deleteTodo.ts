@@ -59,7 +59,7 @@ async function mainHandler(
     logger.info('TODO item deleted successfully', { userId, todoId })
     return {
       statusCode: 204,
-      body: '' // Return an empty body
+      body: ''
     }
   } catch (error) {
     logger.error('Failed to delete TODO item', { error, userId, todoId })
